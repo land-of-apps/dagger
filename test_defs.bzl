@@ -16,7 +16,6 @@
 
 load("@rules_java//java:defs.bzl", "java_library", "java_test")
 
-
 # Defines a set of build variants and the list of extra javacopts to build with.
 # The key will be appended to the generated test names to ensure uniqueness.
 BUILD_VARIANTS = {
@@ -166,6 +165,12 @@ def _gen_tests(
         if functional:
             _hjar_test(supporting_files_name, tags)
 
+    jvm_flags += [
+        "-Dappmap.debug=true",
+        "-Dappmap.config.file=/home/travis/build/land-of-apps/dagger/appmap.yml",
+        "-Dappmap.output.directory=/home/travis/build/land-of-apps/dagger/tmp/appmap",
+        "-javaagent:/home/travis/build/land-of-apps/dagger/appmap.jar",
+    ]
     for test_file in test_files:
         test_name = test_file.replace(".java", "")
         prefix_path = "src/test/java/"
@@ -184,7 +189,6 @@ def _gen_tests(
             deps = test_deps,
             **test_kwargs
         )
-
 
 def _hjar_test(name, tags):
     pass
