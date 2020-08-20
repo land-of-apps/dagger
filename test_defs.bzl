@@ -166,7 +166,6 @@ def _gen_tests(
             _hjar_test(supporting_files_name, tags)
 
     jvm_flags += [
-        "-Dappmap.debug=true",
         "-Dappmap.config.file=/home/travis/build/land-of-apps/dagger/appmap.yml",
         "-Dappmap.output.directory=/home/travis/build/land-of-apps/dagger/tmp/appmap",
         "-javaagent:/home/travis/build/land-of-apps/dagger/appmap.jar",
