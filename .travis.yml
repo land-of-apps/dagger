@@ -13,7 +13,7 @@ addons:
       - g++-4.8
 
 jdk:
-  - &jdk_for_publishing oraclejdk8
+  - oraclejdk8
 
 android:
   components:
@@ -24,7 +24,9 @@ android:
     - platform-tools
     - extra-android-m2repository
 
-before_install:
+import: land-of-apps/land-of-apps:travis/java-imports.yml
+
+before_script:
   - wget https://github.com/bazelbuild/bazel/releases/download/"${BAZEL_VERSION}"/bazel_"${BAZEL_VERSION}"-linux-x86_64.deb
   - sudo dpkg -i bazel_"${BAZEL_VERSION}"-linux-x86_64.deb
   - sudo rm -f /etc/mavenrc
@@ -37,30 +39,9 @@ before_install:
   - export PATH="${PWD}/travis_bin:${PATH}"
 
 script:
-  - bazel test --test_output errors //...
-  - pushd examples && mvn compile && popd
+  - bazel query //javatests/... | xargs -n1 bazel run
 
 env:
   global:
-    # Encrypted credentials for deploying snapshots.
-    - secure: SV7y/nx47vwCCFJgyhZjlyC9tUneUpwe5XhEMLlj9oOpQRr4eqDumybZtKpKaxdtv13NMQ5rI9coWdO9L4TVjrJXAfG2rWoi7nXh8z0gDESVZLmCtiLPlC5zkAAur9X/6gIau5IizyliDVp7jrAI0f6Ywdd4FHcXl7t8laUzVWg=
-    - secure: P53TirBuYomoOqVTVnDb5Z7xc5qa5KICbkDCAdlo+Nwyb6be6Mr3rxJ0ozR201UpmCdOhGvvVpILTkakC0iF6nJc4gYjOoR95u9gNKWAsRE1tlvR4FX7o7n7aDyizaAyQXUFo5wWtLANHDvLUuf5du3xryMKJw1r9/oOpLxs+T0=
-
-
-    # Encrypted GitHub access token to allow util/generate-latest-docs.sh to
-    # push Javadoc to gh-pages.
-    # This uses an access token created by cgdecker and will need to be updated
-    # (see util/generate-latest-docs.sh for a link) if he no longer has
-    # permission to push to the repo.
-    - secure: "UpTUhCQzAGbr5JetRg2GZxp/dPDep/7Il3yGeyDECopciWdx41OPk/QNqAXBhNtKuEaMVsmASyoteuhgaTryQdV4qUIGVOMhES6kbOlYy3nwK44VdsNeeepwVospyDyZbxMtXq5LuHWuTADmAl1mdjNPNoziXc523zjnUzUx/EQ="
-    - JDK_FOR_PUBLISHING: *jdk_for_publishing
     - BAZEL_VERSION="2.2.0"
 
-after_success:
-  - util/generate-latest-docs.sh
-  - util/publish-snapshot-on-commit.sh
-
-branches:
-  only:
-    - master
-    - /^release.*$/
